@@ -47,14 +47,14 @@ export function LoginPage() {
   };
 
   return (
-    <div className="layout-contenedor">
-      <header className="layout-header">
-        <h1 className="header-titulo texto-centrado">Mantenimiento de conjuntos</h1>
+    <div className="login-contenedor">
+      <header className="login-header">
+        <h1>Mantenimiento de conjuntos</h1>
       </header>
 
-      <main className="layout-main" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+      <main className="login-main">
         <div className="tarjeta">
-          <h2 className="tarjeta-titulo texto-centrado">Iniciar sesión</h2>
+          <h2 className="login-titulo texto-centrado">Iniciar sesión</h2>
 
           {sesionVencida && (
             <div className="alerta alerta-aviso" role="alert">
@@ -96,7 +96,7 @@ export function LoginPage() {
               />
             </div>
 
-            <button type="submit" className="btn btn-primario btn-marcar-grande" disabled={cargando}>
+            <button type="submit" className="btn btn-primario btn-login" disabled={cargando}>
               {cargando ? 'Iniciando sesión...' : 'Entrar'}
             </button>
           </form>

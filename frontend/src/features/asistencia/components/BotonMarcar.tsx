@@ -24,7 +24,7 @@ export function BotonMarcar({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', width: '100%' }}>
       <button
         type="button"
-        className="btn btn-primario btn-marcar-grande"
+        className={`btn btn-marcar-grande ${tipoRecomendado === 'entrada' ? 'btn-marcar-entrada' : 'btn-marcar-salida'}`}
         onClick={() => onMarcar(tipoRecomendado)}
         disabled={deshabilitado || marcando}
         aria-label={textoPrincipal}
@@ -34,11 +34,10 @@ export function BotonMarcar({
 
       <button
         type="button"
-        className="btn btn-secundario"
+        className="btn-marcar-alterno"
         onClick={() => onMarcar(tipoContrario)}
         disabled={deshabilitado || marcando}
         aria-label={textoSecundario}
-        style={{ fontSize: '0.9rem' }}
       >
         {textoSecundario}
       </button>

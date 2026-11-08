@@ -24,6 +24,8 @@ export function useEstadoSync(): EstadoSync {
   const [ultimoResultado, setUltimoResultado] = useState<string | null>(null);
 
   const montadoRef = useRef(true);
+  // Ref para evitar que dos sincronizaciones se solapen (sin causar re-renders)
+  const sincronizandoRef = useRef(false);
 
   const actualizarDatos = useCallback(async () => {
     if (!usuarioId) {
@@ -61,14 +63,21 @@ export function useEstadoSync(): EstadoSync {
     };
   }, [actualizarDatos]);
 
-  const sincronizarAhora = useCallback(async () => {
-    if (!usuarioId || sincronizando) return;
+  // sincronizarInterno recibe `manual` para saber si mostrar "nada_que_enviar"
+  const sincronizarInterno = useCallback(async (manual: boolean) => {
+    if (!usuarioId || sincronizandoRef.current) return;
 
+    sincronizandoRef.current = true;
     setSincronizando(true);
     try {
       const resultado = await sincronizadorGlobal.sincronizar(usuarioId);
       if (montadoRef.current) {
-        setUltimoResultado(resultado.mensaje);
+        // Solo mostrar "nada_que_enviar" en sincronizaciones manuales
+        if (resultado.tipo === 'nada_que_enviar' && !manual) {
+          // Auto-sync silenciosa: no actualizamos el mensaje
+        } else {
+          setUltimoResultado(resultado.mensaje);
+        }
         if (resultado.tipo === 'sesion_vencida') {
           marcarSesionVencida();
         }
@@ -78,12 +87,18 @@ export function useEstadoSync(): EstadoSync {
         setUltimoResultado(e instanceof Error ? e.message : 'Error inesperado al sincronizar');
       }
     } finally {
+      sincronizandoRef.current = false;
       if (montadoRef.current) {
         setSincronizando(false);
       }
       await actualizarDatos();
     }
-  }, [usuarioId, sincronizando, marcarSesionVencida, actualizarDatos]);
+  }, [usuarioId, marcarSesionVencida, actualizarDatos]);
+
+  // La función pública que expone el hook siempre es "manual"
+  const sincronizarAhora = useCallback(async () => {
+    await sincronizarInterno(true);
+  }, [sincronizarInterno]);
 
   const descartarRechazada = useCallback(
     async (id: string) => {
@@ -93,21 +108,25 @@ export function useEstadoSync(): EstadoSync {
     [actualizarDatos],
   );
 
-  // Intentar sincronizar al volver a estar online o al montar si hay sesión de operario
+  // Sincronizar al montar (solo operario) y al volver a estar online.
+  // Usa una ref estable para evitar que el efecto dependa de sincronizarInterno.
+  const sincronizarInternoRef = useRef(sincronizarInterno);
+  sincronizarInternoRef.current = sincronizarInterno;
+
   useEffect(() => {
     if (sesion?.usuario.rol === 'operario') {
-      sincronizarAhora();
+      sincronizarInternoRef.current(false);
     }
 
     const alVolverEnLinea = () => {
       if (sesion?.usuario.rol === 'operario') {
-        sincronizarAhora();
+        sincronizarInternoRef.current(false);
       }
     };
 
     window.addEventListener('online', alVolverEnLinea);
     return () => window.removeEventListener('online', alVolverEnLinea);
-  }, [sesion?.usuario.rol, sincronizarAhora]);
+  }, [sesion?.usuario.rol]);
 
   return {
     pendientes,

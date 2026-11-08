@@ -197,7 +197,7 @@ export function HistorialAsistencia() {
 
   return (
     <div>
-      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '16px' }}>
+      <h2 className="titulo-pagina">
         {esOperario ? 'Mi historial de asistencia' : 'Historial de asistencia'}
       </h2>
 

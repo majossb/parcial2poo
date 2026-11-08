@@ -29,7 +29,7 @@ export function MarcarAsistencia() {
 
   return (
     <div>
-      <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '16px' }}>Registro de Asistencia</h2>
+      <h2 className="titulo-pagina">Registro de Asistencia</h2>
 
       {/* Mensajes de confirmación de marcación inmediata */}
       {confirmacion && (
@@ -45,8 +45,8 @@ export function MarcarAsistencia() {
         </div>
       )}
 
-      {/* Tarjeta de marcación */}
-      <div className="tarjeta">
+      {/* Tarjeta de marcación principal */}
+      <div className="tarjeta tarjeta-marcacion">
         {cargandoConjuntos ? (
           <p className="texto-muted">Cargando conjuntos residenciales...</p>
         ) : conjuntos.length === 0 ? (
@@ -54,7 +54,7 @@ export function MarcarAsistencia() {
             Conéctate una vez para cargar los conjuntos.
           </div>
         ) : (
-          <div className="campo" style={{ marginBottom: '20px' }}>
+          <div className="campo" style={{ marginBottom: '16px' }}>
             <label htmlFor="selector-conjunto">Conjunto residencial asignado</label>
             <select
               id="selector-conjunto"
@@ -81,41 +81,38 @@ export function MarcarAsistencia() {
         />
       </div>
 
-      {/* Sección de sincronización manual */}
-      <div className="tarjeta" style={{ marginTop: '16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-          <div>
-            <h3 style={{ fontSize: '1rem', fontWeight: 600 }}>Sincronización</h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--color-texto-muted)' }}>
-              {pendientes > 0
-                ? `${pendientes} marcación(es) por enviar al servidor`
-                : 'Todas tus marcaciones están al día'}
-            </p>
+      {/* Sección de sincronización (secundaria y sobria) */}
+      <div className="seccion-sync">
+        <div className="seccion-sync-info">
+          <div className="seccion-sync-titulo">Sincronización</div>
+          <div className="seccion-sync-detalle">
+            {pendientes > 0
+              ? `${pendientes} marcación(es) por enviar`
+              : 'Al día'}
           </div>
-
-          <button
-            type="button"
-            className="btn btn-secundario"
-            onClick={sincronizarAhora}
-            disabled={sincronizando}
-            aria-label="Sincronizar marcaciones pendientes con el servidor"
-            style={{ minHeight: '44px' }}
-          >
-            {sincronizando ? 'Sincronizando...' : 'Sincronizar'}
-          </button>
         </div>
 
-        {ultimoResultado && (
-          <div
-            className="alerta alerta-aviso"
-            role="status"
-            aria-live="polite"
-            style={{ marginTop: '12px', marginBottom: 0, fontSize: '0.875rem' }}
-          >
-            {ultimoResultado}
-          </div>
-        )}
+        <button
+          type="button"
+          className="btn-sync"
+          onClick={sincronizarAhora}
+          disabled={sincronizando}
+          aria-label="Sincronizar marcaciones pendientes con el servidor"
+        >
+          {sincronizando ? 'Sincronizando...' : 'Sincronizar'}
+        </button>
       </div>
+
+      {ultimoResultado && (
+        <div
+          className="alerta alerta-aviso"
+          role="status"
+          aria-live="polite"
+          style={{ marginBottom: '16px', fontSize: '0.85rem' }}
+        >
+          {ultimoResultado}
+        </div>
+      )}
 
       {/* Lista de marcaciones locales pendientes y rechazadas */}
       <ListaPendientes
