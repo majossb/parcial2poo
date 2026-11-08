@@ -1,4 +1,4 @@
-// Puerto: consultar si un operario está activo
+// Puerto: consultar operarios (los datos viven en el módulo hojas-de-vida)
 export interface OperarioResumen {
   readonly id: string;
   readonly activo: boolean;
@@ -6,5 +6,6 @@ export interface OperarioResumen {
 
 export interface OperariosGateway {
   buscarPorId(operarioId: string): Promise<OperarioResumen | null>;
-  // Más adelante, para la parte HTTP, se agregará buscarPorUsuarioId(usuarioId).
+  // Para saber qué operario es el dueño del token (RF-06, RF-08).
+  buscarPorUsuarioId(usuarioId: string): Promise<OperarioResumen | null>;
 }

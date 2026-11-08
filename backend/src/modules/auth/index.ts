@@ -26,3 +26,4 @@ export { PostgresUsuarioRepository } from './infrastructure/persistence/postgres
 export { AuthController } from './infrastructure/http/auth.controller.js';
 export { crearAuthRouter } from './infrastructure/http/auth.routes.js';
 export { crearAutenticar, exigirRol } from './infrastructure/http/auth.middleware.js';
+export { traducirErroresAuth } from './infrastructure/http/auth.errores.js';

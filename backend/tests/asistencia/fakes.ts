@@ -10,6 +10,7 @@ import type {
 import type { Reloj } from '../../src/modules/asistencia/application/ports/reloj.js';
 
 export const OPERARIO = '11111111-1111-4111-8111-111111111111';
+export const USUARIO = '33333333-3333-4333-8333-333333333333';
 export const CONJUNTO = '22222222-2222-4222-8222-222222222222';
 export const AHORA = new Date('2026-11-10T12:00:00Z');
 
@@ -32,6 +33,10 @@ export const relojFijo: Reloj = { ahora: () => AHORA };
 export class OperariosFalso implements OperariosGateway {
   async buscarPorId(id: string): Promise<OperarioResumen | null> {
     return id === OPERARIO ? { id, activo: true } : null;
+  }
+
+  async buscarPorUsuarioId(usuarioId: string): Promise<OperarioResumen | null> {
+    return usuarioId === USUARIO ? { id: OPERARIO, activo: true } : null;
   }
 }
 
