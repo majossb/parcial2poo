@@ -1,0 +1,1 @@
+-- Tablas del módulo asistencia: marcaciones (id UUID, hora del dispositivo, hora de recepción)

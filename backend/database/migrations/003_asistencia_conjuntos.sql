@@ -1,0 +1,1 @@
+-- Tablas del módulo asistencia: conjuntos residenciales (centros de trabajo)

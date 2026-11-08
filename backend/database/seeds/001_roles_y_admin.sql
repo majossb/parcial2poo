@@ -1,0 +1,1 @@
+-- Datos iniciales: roles y usuario administrador

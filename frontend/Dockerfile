@@ -1,0 +1,1 @@
+# Dockerfile del frontend (pendiente)

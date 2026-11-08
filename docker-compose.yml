@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:16
+    container_name: mantenimiento_db
+    environment:
+      POSTGRES_USER: mantenimiento
+      POSTGRES_PASSWORD: mantenimiento
+      POSTGRES_DB: mantenimiento
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # api:      (se agrega cuando el backend tenga su Dockerfile listo)
+  # frontend: (se agrega cuando el frontend tenga su Dockerfile listo)
+
+volumes:
+  pgdata:

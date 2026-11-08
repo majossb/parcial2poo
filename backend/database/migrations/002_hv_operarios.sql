@@ -1,0 +1,1 @@
+-- Tablas del módulo hojas-de-vida: operarios y su hoja de vida

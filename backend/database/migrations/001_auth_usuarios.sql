@@ -1,0 +1,1 @@
+-- Tablas del módulo auth: roles y usuarios
