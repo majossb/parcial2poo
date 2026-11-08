@@ -7,6 +7,7 @@ const esquema = z.object({
   DATABASE_URL: z.string().min(1, 'DATABASE_URL es obligatoria'),
   JWT_SECRET: z.string().min(8, 'JWT_SECRET debe tener al menos 8 caracteres'),
   JWT_EXPIRES_IN: z.string().default('1h'),
+  CORS_ORIGIN: z.string().default('http://localhost:5173'),
 });
 
 export type Env = z.infer<typeof esquema>;
