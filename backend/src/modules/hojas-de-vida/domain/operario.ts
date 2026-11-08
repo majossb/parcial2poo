@@ -7,7 +7,12 @@ export class OperarioInvalidoError extends Error {
     this.name = 'OperarioInvalidoError';
     }
 }
-
+export class OperarioNoEncontradoError extends Error {
+    constructor(id: string) {
+    super(`No existe un operario con id ${id}`);
+    this.name = 'OperarioNoEncontradoError';
+    }
+}
 export interface DatosOperario {
     documentoIdentidad: string;
     nombres: string;
@@ -71,7 +76,7 @@ export class Operario {
     this._activo = false;
     }
 
-    private static validar(datos: DatosOperario): void {
+    static validar(datos: DatosOperario): void {
     const obligatorios: [string, string][] = [
         ['documentoIdentidad', datos.documentoIdentidad],
         ['nombres', datos.nombres],
@@ -94,6 +99,7 @@ export class Operario {
     }
     }
 
+    
   // Quita espacios sobrantes y convierte los campos opcionales vacíos en null
     private static limpiar(datos: DatosOperario): DatosOperario {
     const opcional = (valor: string | null) => (valor && valor.trim() !== '' ? valor.trim() : null);
