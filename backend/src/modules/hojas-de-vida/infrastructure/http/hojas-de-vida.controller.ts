@@ -21,13 +21,22 @@ const fechaDia = z.iso
 const textoOpcional = z.string().nullable().optional().transform((v) => v ?? null);
 
 const esquemaOperario = z.object({
+  tipoDocumento: z.string(),
   documentoIdentidad: z.string(),
   nombres: z.string(),
   apellidos: z.string(),
+  // Puede llegar vacía: el dominio responde con un mensaje claro si falta
+  fechaNacimiento: fechaDia.nullable().optional().transform((v) => v ?? null),
   telefono: textoOpcional,
   direccion: textoOpcional,
   cargo: z.string(),
   fechaIngreso: fechaDia,
+  especialidades: z.array(z.string()).optional().transform((v) => v ?? []),
+  tipoSangre: textoOpcional,
+  eps: textoOpcional,
+  arl: textoOpcional,
+  contactoEmergenciaNombre: textoOpcional,
+  contactoEmergenciaTelefono: textoOpcional,
 });
 
 const esquemaRegistro = esquemaOperario.extend({
@@ -65,18 +74,26 @@ function operarioARespuesta(o: Operario) {
   return {
     id: o.id,
     usuarioId: o.usuarioId,
+    tipoDocumento: d.tipoDocumento,
     documentoIdentidad: d.documentoIdentidad,
     nombres: d.nombres,
     apellidos: d.apellidos,
     nombreCompleto: o.nombreCompleto,
+    fechaNacimiento: fechaTexto(d.fechaNacimiento),
+    edad: o.edad,
     telefono: d.telefono,
     direccion: d.direccion,
     cargo: d.cargo,
     fechaIngreso: fechaTexto(d.fechaIngreso),
+    especialidades: d.especialidades,
+    tipoSangre: d.tipoSangre,
+    eps: d.eps,
+    arl: d.arl,
+    contactoEmergenciaNombre: d.contactoEmergenciaNombre,
+    contactoEmergenciaTelefono: d.contactoEmergenciaTelefono,
     activo: o.activo,
   };
 }
-
 function experienciaARespuesta(e: ExperienciaLaboral) {
   const d = e.datos;
   return {

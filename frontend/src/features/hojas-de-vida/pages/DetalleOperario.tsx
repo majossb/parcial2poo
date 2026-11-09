@@ -1,4 +1,4 @@
-// Pantalla con la hoja de vida de un operario: datos personales y experiencia laboral (RF-03, RF-05)
+// Pantalla con la hoja de vida de un operario: datos personales, laborales, de salud y experiencia (RF-03, RF-05)
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Tabla, type Columna } from '../../../shared/components/Tabla.js';
@@ -6,7 +6,10 @@ import { fechaHoyColombia } from '../../../shared/utils/fechas.js';
 import { useSesion } from '../../auth/hooks/useSesion.js';
 import { apiAgregarExperiencia, apiConsultarHojaDeVida } from '../api/hojas-de-vida.api.js';
 import { mensajeDeError } from '../errores.js';
-import type { ExperienciaLaboral, HojaDeVida } from '../types.js';
+import { TIPOS_DOCUMENTO, nombreEspecialidad, type ExperienciaLaboral, type HojaDeVida } from '../types.js';
+
+
+
 
 interface CamposExperiencia {
   empresa: string;
@@ -22,6 +25,12 @@ const EXPERIENCIA_VACIA: CamposExperiencia = {
   fechaInicio: '',
   fechaFin: '',
   descripcion: '',
+};
+
+const GRILLA: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+  gap: '16px',
 };
 
 // Muestra un dato con su etiqueta; si está vacío muestra un guion
@@ -85,7 +94,6 @@ export function DetalleOperario() {
         fechaFin: nueva.fechaFin || null,
         descripcion: nueva.descripcion.trim() || null,
       });
-      // Se agrega a la lista y se ordena de la más reciente a la más antigua
       setHojaDeVida((hoja) =>
         hoja
           ? {
@@ -124,7 +132,8 @@ export function DetalleOperario() {
   }
 
   const { operario, experiencias } = hojaDeVida;
-
+  const incompleta =
+    !operario.eps || !operario.arl || !operario.contactoEmergenciaNombre || !operario.fechaNacimiento || operario.especialidades.length === 0;
   const columnas: Columna<ExperienciaLaboral>[] = [
     { key: 'empresa', encabezado: 'Empresa', render: (x: ExperienciaLaboral) => x.empresa },
     { key: 'cargo', encabezado: 'Cargo', render: (x: ExperienciaLaboral) => x.cargo },
@@ -163,14 +172,43 @@ export function DetalleOperario() {
         </div>
       </div>
 
+      {incompleta && (
+        <div className="alerta alerta-aviso" role="alert">
+          Hoja de vida incompleta: faltan datos personales, de salud o de emergencia.
+          {puedeEditar && ' Usa "Editar datos" para completarla.'}
+        </div>
+      )}
+
       <div className="tarjeta">
-        <h3 className="tarjeta-titulo">Datos del operario</h3>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px' }}>
-          <Dato etiqueta="Documento" valor={operario.documentoIdentidad} />
+        <h3 className="tarjeta-titulo">Datos personales</h3>
+        <div style={GRILLA}>
+                  <Dato etiqueta="Tipo de documento" valor={TIPOS_DOCUMENTO.find((t) => t.valor === operario.tipoDocumento)?.nombre ?? operario.tipoDocumento} />
+          <Dato etiqueta="Número de documento" valor={operario.documentoIdentidad} />
+          <Dato
+            etiqueta="Fecha de nacimiento"
+            valor={operario.fechaNacimiento ? `${operario.fechaNacimiento} (${operario.edad} años)` : null}
+          />
           <Dato etiqueta="Teléfono" valor={operario.telefono} />
           <Dato etiqueta="Dirección" valor={operario.direccion} />
+        </div>
+      </div>
+
+      <div className="tarjeta" style={{ marginTop: '16px' }}>
+        <h3 className="tarjeta-titulo">Datos laborales</h3>
+        <div style={GRILLA}>
           <Dato etiqueta="Cargo" valor={operario.cargo} />
-          <Dato etiqueta="Fecha de ingreso" valor={operario.fechaIngreso} />
+           <Dato etiqueta="Fecha de ingreso" valor={operario.fechaIngreso} />
+          <Dato etiqueta="Especialidades" valor={operario.especialidades.map(nombreEspecialidad).join(', ')} />       </div>
+      </div>
+
+      <div className="tarjeta" style={{ marginTop: '16px' }}>
+        <h3 className="tarjeta-titulo">Salud y emergencia</h3>
+        <div style={GRILLA}>
+          <Dato etiqueta="Tipo de sangre" valor={operario.tipoSangre} />
+          <Dato etiqueta="EPS" valor={operario.eps} />
+          <Dato etiqueta="ARL" valor={operario.arl} />
+          <Dato etiqueta="Contacto de emergencia" valor={operario.contactoEmergenciaNombre} />
+          <Dato etiqueta="Teléfono del contacto" valor={operario.contactoEmergenciaTelefono} />
         </div>
       </div>
 

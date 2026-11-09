@@ -1,4 +1,3 @@
-// Adaptador de salida: repositorio de operarios en PostgreSQL
 // Adaptador de salida: repositorio de operarios y hojas de vida en PostgreSQL
 import type { Pool } from '../../../../shared/database/pool.js';
 import { Operario } from '../../domain/operario.js';
@@ -11,13 +10,21 @@ import type {
 interface FilaOperario {
   id: string;
   usuario_id: string;
+  tipo_documento: string;
   documento_identidad: string;
   nombres: string;
   apellidos: string;
+  fecha_nacimiento: Date | null;
   telefono: string | null;
   direccion: string | null;
   cargo: string;
   fecha_ingreso: Date;
+  especialidades: string[];
+  tipo_sangre: string | null;
+  eps: string | null;
+  arl: string | null;
+  contacto_emergencia_nombre: string | null;
+  contacto_emergencia_telefono: string | null;
   activo: boolean;
 }
 
@@ -31,21 +38,30 @@ interface FilaExperiencia {
   descripcion: string | null;
 }
 
-const COLUMNAS_OPERARIO = `id, usuario_id, documento_identidad, nombres, apellidos,
-  telefono, direccion, cargo, fecha_ingreso, activo`;
+const COLUMNAS_OPERARIO = `id, usuario_id, tipo_documento, documento_identidad, nombres, apellidos,
+  fecha_nacimiento, telefono, direccion, cargo, fecha_ingreso, especialidades,
+  tipo_sangre, eps, arl, contacto_emergencia_nombre, contacto_emergencia_telefono, activo`;
 
 function operarioADominio(f: FilaOperario): Operario {
   return Operario.reconstruir(
     f.id,
     f.usuario_id,
     {
+      tipoDocumento: f.tipo_documento,
       documentoIdentidad: f.documento_identidad,
       nombres: f.nombres,
       apellidos: f.apellidos,
+      fechaNacimiento: f.fecha_nacimiento,
       telefono: f.telefono,
       direccion: f.direccion,
       cargo: f.cargo,
       fechaIngreso: f.fecha_ingreso,
+      especialidades: f.especialidades ?? [],
+      tipoSangre: f.tipo_sangre,
+      eps: f.eps,
+      arl: f.arl,
+      contactoEmergenciaNombre: f.contacto_emergencia_nombre,
+      contactoEmergenciaTelefono: f.contacto_emergencia_telefono,
     },
     f.activo,
   );
@@ -81,29 +97,46 @@ export class PostgresOperarioRepository implements OperarioRepository {
     const d = o.datos;
     await this.pool.query(
       `INSERT INTO operarios
-         (id, usuario_id, documento_identidad, nombres, apellidos,
-          telefono, direccion, cargo, fecha_ingreso, activo)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+         (id, usuario_id, tipo_documento, documento_identidad, nombres, apellidos,
+          fecha_nacimiento, telefono, direccion, cargo, fecha_ingreso, especialidades,
+          tipo_sangre, eps, arl, contacto_emergencia_nombre, contacto_emergencia_telefono, activo)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)
        ON CONFLICT (id) DO UPDATE SET
+         tipo_documento = EXCLUDED.tipo_documento,
          documento_identidad = EXCLUDED.documento_identidad,
          nombres = EXCLUDED.nombres,
          apellidos = EXCLUDED.apellidos,
+         fecha_nacimiento = EXCLUDED.fecha_nacimiento,
          telefono = EXCLUDED.telefono,
          direccion = EXCLUDED.direccion,
          cargo = EXCLUDED.cargo,
          fecha_ingreso = EXCLUDED.fecha_ingreso,
+         especialidades = EXCLUDED.especialidades,
+         tipo_sangre = EXCLUDED.tipo_sangre,
+         eps = EXCLUDED.eps,
+         arl = EXCLUDED.arl,
+         contacto_emergencia_nombre = EXCLUDED.contacto_emergencia_nombre,
+         contacto_emergencia_telefono = EXCLUDED.contacto_emergencia_telefono,
          activo = EXCLUDED.activo,
          actualizado_en = now()`,
       [
         o.id,
         o.usuarioId,
+        d.tipoDocumento,
         d.documentoIdentidad,
         d.nombres,
         d.apellidos,
+        d.fechaNacimiento ? aFechaSql(d.fechaNacimiento) : null,
         d.telefono,
         d.direccion,
         d.cargo,
         aFechaSql(d.fechaIngreso),
+        d.especialidades,
+        d.tipoSangre,
+        d.eps,
+        d.arl,
+        d.contactoEmergenciaNombre,
+        d.contactoEmergenciaTelefono,
         o.activo,
       ],
     );
