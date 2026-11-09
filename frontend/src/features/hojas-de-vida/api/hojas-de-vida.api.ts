@@ -1,13 +1,15 @@
 // API de hojas de vida: llamadas HTTP para operarios y su experiencia laboral (RF-02 a RF-05)
 import { request } from '../../../shared/api/http-client.js';
 import type {
-    DatosExperiencia,
-    DatosOperario,
-    ExperienciaLaboral,
-    HojaDeVida,
-    Operario,
-    SolicitudRegistroOperario,
-} from '../types.js';
+  DatosExperiencia,
+  DatosFormacion,
+  DatosOperario,
+  ExperienciaLaboral,
+  Formacion,
+  HojaDeVida,
+  Operario,
+  SolicitudRegistroOperario,
+} from '../types.js';;
 
 const BASE = '/api/hojas-de-vida/operarios';
 
@@ -47,4 +49,11 @@ export function apiAgregarExperiencia(
     token,
     body: datos,
     });
+}
+export function apiAgregarFormacion(token: string, id: string, datos: DatosFormacion): Promise<Formacion> {
+  return request<Formacion>(`${BASE}/${encodeURIComponent(id)}/formaciones`, {
+    method: 'POST',
+    token,
+    body: datos,
+  });
 }

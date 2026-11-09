@@ -31,11 +31,21 @@ export interface ExperienciaLaboral {
   readonly descripcion: string | null;
 }
 
+export interface Formacion {
+  readonly id: string;
+  readonly tipo: string;
+  readonly titulo: string;
+  readonly institucion: string;
+  readonly fechaObtencion: string;
+  readonly fechaVencimiento: string | null; // null = no vence
+  readonly vigente: boolean;
+}
+
 export interface HojaDeVida {
   readonly operario: Operario;
   readonly experiencias: readonly ExperienciaLaboral[];
+  readonly formaciones: readonly Formacion[];
 }
-
 // Lo que se envía al backend para registrar o actualizar
 export interface DatosOperario {
   tipoDocumento: string;
@@ -88,4 +98,21 @@ export const ESPECIALIDADES = [
 
 export function nombreEspecialidad(valor: string): string {
   return ESPECIALIDADES.find((e) => e.valor === valor)?.nombre ?? valor;
+}
+export interface DatosFormacion {
+  tipo: string;
+  titulo: string;
+  institucion: string;
+  fechaObtencion: string;
+  fechaVencimiento: string | null;
+}
+
+export const TIPOS_FORMACION = [
+  { valor: 'academica', nombre: 'Estudio académico' },
+  { valor: 'curso', nombre: 'Curso' },
+  { valor: 'certificacion', nombre: 'Certificación' },
+];
+
+export function nombreTipoFormacion(valor: string): string {
+  return TIPOS_FORMACION.find((t) => t.valor === valor)?.nombre ?? valor;
 }

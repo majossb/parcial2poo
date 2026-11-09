@@ -1,7 +1,7 @@
 // Adaptador de salida: repositorio de operarios y hojas de vida en PostgreSQL
 import type { Pool } from '../../../../shared/database/pool.js';
 import { Operario } from '../../domain/operario.js';
-import { ExperienciaLaboral, HojaDeVida } from '../../domain/hoja-de-vida.js';
+import { ExperienciaLaboral, Formacion, HojaDeVida } from '../../domain/hoja-de-vida.js';
 import type {
   FiltroOperarios,
   OperarioRepository,
@@ -36,6 +36,16 @@ interface FilaExperiencia {
   fecha_inicio: Date;
   fecha_fin: Date | null;
   descripcion: string | null;
+}
+
+interface FilaFormacion {
+  id: string;
+  operario_id: string;
+  tipo: string;
+  titulo: string;
+  institucion: string;
+  fecha_obtencion: Date;
+  fecha_vencimiento: Date | null;
 }
 
 const COLUMNAS_OPERARIO = `id, usuario_id, tipo_documento, documento_identidad, nombres, apellidos,
@@ -74,6 +84,16 @@ function experienciaADominio(f: FilaExperiencia): ExperienciaLaboral {
     fechaInicio: f.fecha_inicio,
     fechaFin: f.fecha_fin,
     descripcion: f.descripcion,
+  });
+}
+
+function formacionADominio(f: FilaFormacion): Formacion {
+  return Formacion.reconstruir(f.id, f.operario_id, {
+    tipo: f.tipo,
+    titulo: f.titulo,
+    institucion: f.institucion,
+    fechaObtencion: f.fecha_obtencion,
+    fechaVencimiento: f.fecha_vencimiento,
   });
 }
 
@@ -180,14 +200,25 @@ export class PostgresOperarioRepository implements OperarioRepository {
     if (!operario) {
       return null;
     }
-    const r = await this.pool.query<FilaExperiencia>(
+    const experiencias = await this.pool.query<FilaExperiencia>(
       `SELECT id, operario_id, empresa, cargo, fecha_inicio, fecha_fin, descripcion
          FROM experiencias_laborales
         WHERE operario_id = $1
         ORDER BY fecha_inicio DESC`,
       [operarioId],
     );
-    return new HojaDeVida(operario, r.rows.map(experienciaADominio));
+    const formaciones = await this.pool.query<FilaFormacion>(
+      `SELECT id, operario_id, tipo, titulo, institucion, fecha_obtencion, fecha_vencimiento
+         FROM formaciones
+        WHERE operario_id = $1
+        ORDER BY fecha_obtencion DESC`,
+      [operarioId],
+    );
+    return new HojaDeVida(
+      operario,
+      experiencias.rows.map(experienciaADominio),
+      formaciones.rows.map(formacionADominio),
+    );
   }
 
   async guardarExperiencia(e: ExperienciaLaboral): Promise<void> {
@@ -204,6 +235,24 @@ export class PostgresOperarioRepository implements OperarioRepository {
         aFechaSql(d.fechaInicio),
         d.fechaFin ? aFechaSql(d.fechaFin) : null,
         d.descripcion,
+      ],
+    );
+  }
+
+  async guardarFormacion(f: Formacion): Promise<void> {
+    const d = f.datos;
+    await this.pool.query(
+      `INSERT INTO formaciones
+         (id, operario_id, tipo, titulo, institucion, fecha_obtencion, fecha_vencimiento)
+       VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        f.id,
+        f.operarioId,
+        d.tipo,
+        d.titulo,
+        d.institucion,
+        aFechaSql(d.fechaObtencion),
+        d.fechaVencimiento ? aFechaSql(d.fechaVencimiento) : null,
       ],
     );
   }
