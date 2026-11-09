@@ -15,8 +15,9 @@ export function crearApp(env: Env, contenedor: Contenedor): Express {
   app.get('/api/salud', (_req, res) => {
     res.json({ estado: 'ok' });
   });
-  app.use('/api/auth', contenedor.authRouter);
+    app.use('/api/auth', contenedor.authRouter);
   app.use('/api/asistencia', contenedor.asistenciaRouter);
+  app.use('/api/hojas-de-vida', contenedor.hojasDeVidaRouter);
 
   app.use(rutaNoEncontrada);
   app.use(crearManejadorErrores(contenedor.traductoresDeErrores)); // siempre al final
