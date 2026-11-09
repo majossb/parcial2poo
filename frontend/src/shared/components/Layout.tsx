@@ -75,12 +75,20 @@ export function Layout() {
               </NavLink>
             </>
           ) : (
-            <NavLink
-              to="/historial"
-              className={({ isActive }) => `nav-link ${isActive ? 'activo' : ''}`}
-            >
-              Asistencia
-            </NavLink>
+            <>
+              <NavLink
+                to="/historial"
+                className={({ isActive }) => `nav-link ${isActive ? 'activo' : ''}`}
+              >
+                Asistencia
+              </NavLink>
+              <NavLink
+                to="/operarios"
+                className={({ isActive }) => `nav-link ${isActive ? 'activo' : ''}`}
+              >
+                Operarios
+              </NavLink>
+            </>
           )}
         </nav>
       )}
